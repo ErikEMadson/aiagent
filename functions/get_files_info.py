@@ -27,7 +27,7 @@ def get_files_info(working_directory, directory="."):
             return f"Error: Unable to get the size of \"{file_name}\" in \"{directory}\""
 
         try:
-            is_directory = not os.path.isfile(os.path.join(full_path, file_name))
+            is_directory = os.path.isdir(os.path.join(full_path, file_name))
             return_string = f"{return_string}{is_directory}\n"
         except Exception:
             return f"Error: Unable to determine if \"{file_name}\" in \"{directory}\" is a directory"
