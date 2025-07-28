@@ -2,6 +2,9 @@ import os
 import dotenv
 import sys
 
+import config
+from functions.get_files_info import schema_get_files_info, get_files_info
+
 from google import genai
 from google.genai import types
 
@@ -16,7 +19,7 @@ def main():
     user_prompt = sys.argv[1]
 
     verbose = False
-    if len(sys.argv) >= 2:
+    if len(sys.argv) > 2:
         if sys.argv[2] == "--verbose":
             verbose = True
         else:
@@ -28,14 +31,28 @@ def main():
         types.Content(role="user", parts=[types.Part(text=user_prompt)]),
     ]
 
+    available_functions = types.Tool(
+        function_declarations=[
+            schema_get_files_info,
+        ]
+    )
+
     client = genai.Client(api_key=api_key)
 
     response = client.models.generate_content(
         model="gemini-2.0-flash-001",
-        contents=messages
+        contents=messages,
+        config=types.GenerateContentConfig(
+            tools=[available_functions],
+            system_instruction=config.SYSTEM_PROMPT
+        )
     )
 
-    print(response.text)
+    for part in response.candidates[0].content.parts:
+        if part.text:
+            print(part.text)
+        if part.function_call:
+            print(f"Calling function: {part.function_call.name}({part.function_call.args})")
 
     if verbose:
         print(f"User prompt: {user_prompt}")
