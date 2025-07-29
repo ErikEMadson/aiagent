@@ -1,4 +1,33 @@
 import os
+from google.genai import types
+
+schema_write_file = types.FunctionDeclaration(
+    name="write_file",
+    description=(
+        "Creates or overwrites a file in the working directory with the provided content. "
+        "Used to save new files, update existing ones, or write generated code and data to disk."
+    ),
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "file_path": types.Schema(
+                type=types.Type.STRING,
+                description=(
+                    "The relative path (from the working directory) of the file to write to. "
+                    "If the file exists, it will be overwritten; if it does not exist, it will be created."
+                ),
+            ),
+            "content": types.Schema(
+                type=types.Type.STRING,
+                description=(
+                    "The full text content to write into the file. "
+                    "Binary files are not supported; only text-based content should be written."
+                ),
+            ),
+        },
+        required=["file_path", "content"],
+    ),
+)
 
 def write_file(working_directory, file_path, content):
     absolute_working_directory = os.path.abspath(working_directory) + os.sep

@@ -1,6 +1,29 @@
 import os
 import config
 
+from google.genai import types
+
+schema_get_file_content = types.FunctionDeclaration(
+    name="get_file_content",
+    description=(
+        "Retrieves the full content of a specified file, constrained to the working directory. "
+        "Useful for reading the contents of text files like, for example, code or configuration files so they can be analyzed or modified."
+    ),
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "file_path": types.Schema(
+                type=types.Type.STRING,
+                description=(
+                    "The relative path (from the working directory) of the file to read. "
+                    "Must point to a valid file within the working directory."
+                ),
+            ),
+        },
+        required=["file_path"],
+    ),
+)
+
 def get_file_content(working_directory, file_path):
     absolute_working_directory = os.path.abspath(working_directory) + os.sep
     full_path = os.path.abspath(os.path.join(absolute_working_directory, file_path))
